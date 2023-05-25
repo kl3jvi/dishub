@@ -1,7 +1,7 @@
 package com.kl3jvi.auth
 
 import com.kl3jvi.auth.models.NewUser
-import com.kl3jvi.auth.models.UserCredentials
+import com.kl3jvi.database.models.UserCredentials
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

@@ -1,9 +1,9 @@
 package com.kl3jvi.auth
 
 import com.kl3jvi.auth.models.NewUser
-import com.kl3jvi.auth.models.UserCredentials
+import com.kl3jvi.database.models.UserCredentials
 import com.kl3jvi.database.DbService
-import com.kl3jvi.database.models.User
+import com.kl3jvi.auth.models.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.ktor.server.plugins.*

@@ -4,6 +4,7 @@ import com.kl3jvi.auth.AuthService
 import com.kl3jvi.auth.UserSession
 import com.kl3jvi.di.appModule
 import com.kl3jvi.routes.authRoutes
+import com.kl3jvi.routes.recipeRoutes
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -39,9 +40,9 @@ fun Application.module() {
         cookie<UserSession>("USER_SESSION")
     }
 
-    val authService: AuthService by inject()
 
     install(Routing) {
-        authRoutes(authService)
+        authRoutes()
+        recipeRoutes()
     }
 }

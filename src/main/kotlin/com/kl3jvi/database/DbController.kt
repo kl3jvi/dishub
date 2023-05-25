@@ -1,14 +1,32 @@
 package com.kl3jvi.database
 
 import com.kl3jvi.auth.models.NewUser
-import com.kl3jvi.database.models.User
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import com.kl3jvi.auth.models.User
+import com.kl3jvi.comments.models.Comment
+import com.kl3jvi.database.tables.Comments
+import com.kl3jvi.database.tables.Ingredients
+import com.kl3jvi.database.tables.Recipes
+import com.kl3jvi.database.tables.Users
+import com.kl3jvi.recipe.models.NewRecipe
+import com.kl3jvi.recipe.models.RecipeData
+import io.ktor.server.plugins.*
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DbController(dbConnector: DbConnector) {
+class DbController {
     init {
-        dbConnector
+        Database.connect(
+            url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;",
+            driver = "org.h2.Driver"
+        )
+
+        transaction {
+            SchemaUtils.create(Users)
+            SchemaUtils.create(Recipes)
+            SchemaUtils.create(Ingredients)
+            SchemaUtils.create(Comments)
+        }
+
     }
 
     fun createUser(newUser: NewUser): User {
@@ -17,10 +35,8 @@ class DbController(dbConnector: DbConnector) {
             Users.insert { user ->
                 user[username] = newUser.username
                 user[passwordHash] = newUser.passwordHash
-                // set other properties...
             }
 
-            // Then retrieve the user just created
             Users.select { Users.username eq newUser.username }
                 .singleOrNull()
                 ?.let { row ->
@@ -28,7 +44,6 @@ class DbController(dbConnector: DbConnector) {
                         row[Users.id].value,
                         row[Users.username],
                         row[Users.passwordHash]
-                        // map other properties...
                     )
                 }
         }
@@ -45,10 +60,110 @@ class DbController(dbConnector: DbConnector) {
                         row[Users.id].value,
                         row[Users.username],
                         row[Users.passwordHash]
-                        // map other properties...
                     )
                 }
         }
         return foundUser
     }
+
+    fun getAllRecipes(): List<RecipeData> {
+        return transaction {
+            Recipes.selectAll().map {
+                RecipeData(
+                    id = it[Recipes.id].value,
+                    title = it[Recipes.title],
+                    image = it[Recipes.image],
+                    ingredients = getIngredientsByRecipeId(it[Recipes.id].value),
+                    createdBy = getUserById(it[Recipes.createdBy].value),
+                    likes = getLikesByRecipeId(it[Recipes.id].value),
+                    comments = getCommentsByRecipeId(it[Recipes.id].value)
+                )
+            }
+        }
+    }
+
+    fun addRecipe(newRecipe: NewRecipe): Int {
+        return transaction {
+            Recipes.insertAndGetId { row ->
+                row[title] = newRecipe.title
+                row[image] = newRecipe.image
+                row[ingredients] = newRecipe.ingredients.joinToString()
+                row[createdBy] = newRecipe.createdBy
+            }.value
+        }
+    }
+
+    fun getRecipeById(id: Int): RecipeData? {
+        return transaction {
+            Recipes.select { Recipes.id eq id }.map {
+                RecipeData(
+                    id = it[Recipes.id].value,
+                    title = it[Recipes.title],
+                    image = it[Recipes.image],
+                    ingredients = getIngredientsByRecipeId(it[Recipes.id].value),
+                    createdBy = getUserById(it[Recipes.createdBy].value),
+                    likes = getLikesByRecipeId(it[Recipes.id].value),
+                    comments = getCommentsByRecipeId(it[Recipes.id].value)
+                )
+            }.singleOrNull()
+        }
+    }
+
+    private fun getIngredientsByRecipeId(recipeId: Int): List<String> {
+        return transaction {
+            Ingredients
+                .select { Ingredients.recipe eq recipeId }
+                .map { it[Ingredients.name] }
+        }
+    }
+
+    private fun getCommentsByRecipeId(recipeId: Int): List<Comment> {
+        return transaction {
+            Comments
+                .select { Comments.recipe eq recipeId }
+                .map {
+                    Comment(
+                        id = it[Comments.id].value,
+                        text = it[Comments.text],
+                        createdBy = getUserById(it[Comments.createdBy].value),
+                        timestamp = it[Comments.timeStamp]
+                    )
+                }
+        }
+    }
+
+    private fun getLikesByRecipeId(recipeId: Int): Int {
+//        return transaction {
+//            Likes
+//                .select { Likes.recipe eq recipeId }
+//                .count()
+//        }
+        return -1
+    }
+
+    private fun getUserById(userId: Int): User {
+        return transaction {
+            Users
+                .select { Users.id eq userId }
+                .map {
+                    User(
+                        id = it[Users.id].value,
+                        username = it[Users.username],
+                        password = it[Users.passwordHash]
+                    )
+                }
+                .singleOrNull() ?: throw NotFoundException("User not found")
+        }
+    }
+
+    private fun getUserIdByUsername(username: String): Int {
+        return transaction {
+            Users
+                .select { Users.username eq username }
+                .map { it[Users.id].value }
+                .singleOrNull() ?: throw NotFoundException("User not found")
+        }
+    }
+
+
 }

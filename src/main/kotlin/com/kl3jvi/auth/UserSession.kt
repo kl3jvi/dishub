@@ -1,4 +1,4 @@
-package com.kl3jvi
+package com.kl3jvi.auth
 
 import io.ktor.auth.*
 

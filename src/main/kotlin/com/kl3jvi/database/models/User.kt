@@ -1,4 +1,4 @@
-package com.kl3jvi.database
+package com.kl3jvi.database.models
 
 data class User(
     val id: Int,

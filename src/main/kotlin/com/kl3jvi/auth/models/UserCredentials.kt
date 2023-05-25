@@ -1,3 +1,9 @@
-package com.kl3jvi.auth
+package com.kl3jvi.auth.models
 
-data class UserCredentials(val username: String, val password: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class UserCredentials(
+    val username: String,
+    val password: String
+)

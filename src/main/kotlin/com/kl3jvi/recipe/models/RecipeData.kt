@@ -2,7 +2,9 @@ package com.kl3jvi.recipe.models
 
 import com.kl3jvi.auth.models.User
 import com.kl3jvi.comments.models.Comment
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RecipeData(
     val id: Int,
     val title: String,

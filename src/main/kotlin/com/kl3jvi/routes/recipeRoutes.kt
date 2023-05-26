@@ -23,7 +23,8 @@ fun Route.recipeRoutes() {
                 val recipe = recipeService.addRecipe(newRecipe)
                 if (recipe != null)
                     call.respond(HttpStatusCode.Created, recipe)
-                else call.respond(HttpStatusCode.NotFound)
+                else
+                    call.respond(HttpStatusCode.NotFound)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, e.localizedMessage)
             }

@@ -6,6 +6,7 @@ import com.kl3jvi.comments.models.Comment
 import com.kl3jvi.database.tables.Comments
 import com.kl3jvi.database.tables.Ingredients
 import com.kl3jvi.database.tables.Recipes
+import com.kl3jvi.database.tables.Recipes.createdBy
 import com.kl3jvi.database.tables.Users
 import com.kl3jvi.recipe.models.NewRecipe
 import com.kl3jvi.recipe.models.RecipeData
@@ -15,18 +16,25 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 class DbController {
     init {
+        val host = "sql.freedb.tech"
+        val port = 3306
+        val databaseName = "freedb_naruto"
+        val dbUser = "freedb_dishub"
+        val password = "GmMf%$$6dd3yfbS"
+
         Database.connect(
-            url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;",
-            driver = "org.h2.Driver"
+            url = "jdbc:mysql://$host:$port/$databaseName",
+            driver = "com.mysql.cj.jdbc.Driver",
+            user = dbUser,
+            password = password
         )
 
         transaction {
-            SchemaUtils.create(Users)
             SchemaUtils.create(Recipes)
+            SchemaUtils.create(Users)
             SchemaUtils.create(Ingredients)
             SchemaUtils.create(Comments)
         }
-
     }
 
     fun createUser(newUser: NewUser): User {
@@ -74,7 +82,7 @@ class DbController {
                     title = it[Recipes.title],
                     image = it[Recipes.image],
                     ingredients = getIngredientsByRecipeId(it[Recipes.id].value),
-                    createdBy = getUserById(it[Recipes.createdBy].value),
+                    createdBy = getUserById(it[Recipes.createdBy]),
                     likes = getLikesByRecipeId(it[Recipes.id].value),
                     comments = getCommentsByRecipeId(it[Recipes.id].value)
                 )
@@ -101,7 +109,7 @@ class DbController {
                     title = it[Recipes.title],
                     image = it[Recipes.image],
                     ingredients = getIngredientsByRecipeId(it[Recipes.id].value),
-                    createdBy = getUserById(it[Recipes.createdBy].value),
+                    createdBy = getUserById(it[createdBy]),
                     likes = getLikesByRecipeId(it[Recipes.id].value),
                     comments = getCommentsByRecipeId(it[Recipes.id].value)
                 )

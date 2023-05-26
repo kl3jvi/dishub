@@ -12,11 +12,11 @@ val appModule = module {
     single { AuthService(get()) }
 
     single { RecipeService(get()) }
+
 //    single { CommentService(get()) }
 //    single { LikeService(get()) }
 //
 //    single { AuthController(get()) }
-//    single { RecipeController(get()) }
 //    single { CommentController(get()) }
 //    single { LikeController(get()) }
 }

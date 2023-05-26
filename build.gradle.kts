@@ -34,6 +34,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.h2database:h2:2.1.214")
+    implementation("mysql:mysql-connector-java:8.0.32")
     implementation("org.jetbrains.exposed:exposed-java-time:0.40.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-client-logging-jvm:2.2.4")

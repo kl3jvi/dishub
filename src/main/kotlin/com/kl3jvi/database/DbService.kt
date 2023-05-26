@@ -17,4 +17,6 @@ class DbService(private val dbController: DbController) : KoinComponent {
     fun addRecipe(newRecipe: NewRecipe) = dbController.addRecipe(newRecipe)
 
     fun getRecipeById(recipeId: Int): RecipeData? = dbController.getRecipeById(recipeId)
+
+    fun getAllUsers(): List<User> = dbController.getAllUsers()
 }

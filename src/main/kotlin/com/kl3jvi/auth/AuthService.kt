@@ -1,9 +1,9 @@
 package com.kl3jvi.auth
 
 import com.kl3jvi.auth.models.NewUser
-import com.kl3jvi.database.models.UserCredentials
-import com.kl3jvi.database.DbService
 import com.kl3jvi.auth.models.User
+import com.kl3jvi.database.DbService
+import com.kl3jvi.database.models.UserCredentials
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.ktor.server.plugins.*
@@ -13,9 +13,11 @@ import java.util.*
 import javax.crypto.spec.SecretKeySpec
 import javax.xml.bind.DatatypeConverter
 
-class AuthService(private val dbService: DbService) {
+class AuthService(
+    private val dbService: DbService
+) {
 
-    private val SECRET_KEY = "mySuperSecretKey" // Consider storing this securely
+    private val SECRET_KEY = "mySuperSecretKey"
 
     fun login(credentials: UserCredentials): String {
         val user = transaction { dbService.findUser(credentials.username) }

@@ -11,7 +11,9 @@ import com.kl3jvi.database.tables.Users
 import com.kl3jvi.recipe.models.NewRecipe
 import com.kl3jvi.recipe.models.RecipeData
 import io.ktor.server.plugins.*
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DbController {
@@ -173,5 +175,18 @@ class DbController {
         }
     }
 
+    fun getAllUsers(): List<User> {
+        return Users.selectAll().map {
+            User(
+                it[Users.id].value,
+                it[Users.passwordHash],
+                it[Users.username],
+            )
+        }
+    }
+
 
 }
+
+suspend fun <T> dbQuery(block: suspend () -> T): T =
+    newSuspendedTransaction(Dispatchers.IO) { block() }
